@@ -2,36 +2,70 @@ package main
 
 import (
     "fmt"
+    "os"
     "io/ioutil"
     s "strings"
     "strconv"
 )
 
-func main() {
-    data, err := ioutil.ReadFile("input.txt")
+func getFileAsList(fn string) []string {
+    data, err := ioutil.ReadFile(fn)
     if err != nil {
         fmt.Println("Error opening file")
-        return
+        os.Exit(1)
     }
     str := s.Trim(s.Replace(string(data), "\r", "", -1), "\n")
     list := s.Split(str, "\n")
-    last := 0
-    count := 0
-    AVGLEN := 3
-    ring := make([]int, AVGLEN)
-    for i := 1; i < AVGLEN; i++ {
-        ring[i] = 0
-    }
-    sum := 0
+    return list
+}
+
+
+func getFileAsIntList(fn string) []int {
+    list := getFileAsList(fn)
+    intList := make([]int, len(list))
     for i, line := range list {
         val, err := strconv.Atoi(line)
         if err != nil {
             fmt.Println("Error converting string to number: ", line)
+            os.Exit(2)
         }
-        sum -= ring[i % AVGLEN]
-        sum += val
-        ring[i % AVGLEN] = val
-        if (i > 2 && last < sum) {count += 1 }
+        intList[i] = val
+    }
+    return intList
+}
+
+var AVGLEN int
+var ring []int
+var index int
+var sum int
+
+func initSlidingSum(Len int) {
+    AVGLEN = Len
+    ring = make([]int, AVGLEN)
+    for i := 1; i < AVGLEN; i++ {
+        ring[i] = 0
+    }
+    sum = 0
+    index = 0
+}
+
+func getSlidingSum(val int) int {
+    sum -= ring[index]
+    sum += val
+    ring[index] = val
+    index = (index + 1) % AVGLEN
+    return sum
+}
+
+func main() {
+    list := getFileAsIntList("input.txt")
+    initSlidingSum(3)
+
+    last := 0
+    count := 0
+    for i, v := range list {
+        ssum := getSlidingSum(v)
+        if (i > (AVGLEN-1) && last < ssum) {count += 1 }
         last = sum
     }
     fmt.Println(count)
