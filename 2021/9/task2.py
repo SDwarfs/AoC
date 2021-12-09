@@ -41,13 +41,13 @@ sizes = []
 # go through all map positions (lines first, better caching)
 for y in range(H):
     for x in range(W):
-        # check if map position is not "9" or already done
+        # skip map position that are "9" or already done
         # else we end up with lots of 0 sizes in the array
-        if map[y][x] == 9 or done[y][x]:
-            # we found an unprocessed position that is not "9"
-            # and hence part of a basin. Floodfill it and add
-            # the returned size to the list.
-            sizes.append(floodfill(x,y))
+        if map[y][x] == 9 or done[y][x]: continue
+        # we found an unprocessed position that is not "9"
+        # and hence part of a basin. Floodfill it and add
+        # the returned size to the list.
+        sizes.append(floodfill(x,y))
 
 # sort estimated basin sizes in reversed order (largest values first)
 sizes.sort(reverse=True)
