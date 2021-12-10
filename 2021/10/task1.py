@@ -2,9 +2,9 @@ import numpy as np
 
 lines = [x.rstrip() for x in open("input.txt")]
 
-open = []
 points = 0
 for line in lines:
+    open = []
     for c in line:
         if c == '[':
             open.append("]")
