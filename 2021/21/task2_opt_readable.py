@@ -21,6 +21,10 @@ freq_list = [[rolled_sum, freq[rolled_sum]] for rolled_sum in freq]
 def game(p1, p2, turn=0, s1=0, s2=0):
     # reset the counters to 0 for both player
     wins = [0, 0]
+    # who's player is next after this turn, used for recursive calls later
+    next_turn = (turn + 1) % 2
+    # go through all posible 3-dice-rolls-sum outcomes and their
+    # absolute frequencies
     for rolled_sum, freq in freq_list:
         # We use temporary variables for new positions so we don't have to
         # restore them after the loop's end. Also arrays to allow access
@@ -28,18 +32,22 @@ def game(p1, p2, turn=0, s1=0, s2=0):
         p = [p1, p2]
         s = [s1, s2]
         # advance current player's position according to rolled_sum
+        # note that player positions are 1 .. 10, hence we subtract 1
+        # first and add 1 later. We cannot use 0..9 or we had to do tricks
+        # when calcuting the score instead.
         p[turn] = (((p[turn] - 1) + rolled_sum) % 10) + 1
         # increase current player's score by the new position
         s[turn] += p[turn]
+        # check if the current player had won for that outcome
         if s[turn] >= 21:
-            # the score is 21 or above, so the current player wins 'freq' times
-            # in this recursion branch...
+            # the score is 21 or above, so the current player won 'freq' times
+            # in this recursion branch for this dice roll outcome...
             wins[turn] += freq
         else:
             # we don't know the outcome yet, so we call the function
             # rescursively for the new game state to calculate the
             # outcomes for both players
-            res = game(p[0], p[1], (turn+1)%2, s[0], s[1])
+            res = game(p[0], p[1], next_turn, s[0], s[1])
             # for the current game state there are freq variants leading
             # to this new game state, hence multiply freq by the returned
             # number of wins and add them to the outcome list
